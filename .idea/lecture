@@ -1,0 +1,9 @@
+import tensorflow as tf
+
+in1 = tf.constant([1., 2.], name='in1')
+in2 = tf.Variable(tf.random_normal([2]), name='in2')
+out = tf.add(in1, in2, name='add')
+
+#注意Windows环境下的的路径为了方便可以使用r''，或把\都替换成/或\\
+writer = tf.summary.FileWriter(r'D:\数据挖掘\newlearner\.idea\graphs', tf.get_default_graph())
+writer.close()

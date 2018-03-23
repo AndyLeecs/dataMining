@@ -1,0 +1,36 @@
+#TODO:why do we use tf.float32
+import input_data
+import tensorflow as tf
+mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
+
+#28*28,None means that we don't know the exact num
+x = tf.placeholder(tf.float32,shape=[None,784])
+#digits from 0-9
+y_ = tf.placeholder(tf.float32,[None,10])
+#weight and balances
+w= tf.Variable(tf.zeros([784,10]))
+b = tf.Variable(tf.zeros([10]))
+#model
+y = tf.nn.softmax(tf.matmul(x,w)+b) #attention the order of tensors multiply
+#loss
+cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_,logits=y))
+#train
+#the parameter in gradientdescentoptimizer means learning_rate
+train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
+
+init = tf.global_variables_initializer()
+sess = tf.Session()
+sess.run(init)
+
+for i in range(1000):
+    batch_xs,batch_ys = mnist.train.next_batch(100) #get 100 random data points from the data, batch_xs = image, batch_ys = digits
+    sess.run(train_step,feed_dict={x:batch_xs,y_:batch_ys})
+
+#evaluate
+#comparing the digit with the highest probablility in actual y and predicted y_
+correct_prediction = tf.equal(tf.argmax(y,1),tf.argmax(y_,1))
+accuracy = tf.reduce_mean(tf.cast(correct_prediction,tf.float32))
+test_accuracy = sess.run(accuracy,feed_dict={x:mnist.test.images,y_:mnist.test.labels})
+print("Test Accuracy:{0}%".format(test_accuracy*100.0))
+
+sess.close()
